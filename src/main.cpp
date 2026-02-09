@@ -1,5 +1,3 @@
-
-#include "Geode/ui/SceneManager.hpp"
 #include "platform/platform.hpp"
 #include <Geode/modify/CCKeyboardDispatcher.hpp>
 #include <Geode/modify/AchievementNotifier.hpp>
@@ -23,15 +21,17 @@ class $modify(CCNode) {
 };
 
 // todo: use shortcuts api once Geode has those
+#ifndef GEODE_IS_IOS
 class $modify(CCKeyboardDispatcher) {
-    bool dispatchKeyboardMSG(enumKeyCodes key, bool down, bool arr, double a4) {
+    bool dispatchKeyboardMSG(enumKeyCodes key, bool down, bool arr, double timestamp) {
         if (down && (key == KEY_F11 GEODE_MACOS(|| key == KEY_F10))) {
             DevTools::get()->toggle();
             return true;
         }
-        return CCKeyboardDispatcher::dispatchKeyboardMSG(key, down, arr, a4);
+        return CCKeyboardDispatcher::dispatchKeyboardMSG(key, down, arr, timestamp);
     }
 };
+#endif
 
 #include <Geode/loader/GameEvent.hpp>
 $execute {
@@ -90,7 +90,7 @@ class $modify(CCDirector) {
         if (!DevTools::get()->shouldUseGDWindow()) {
             return CCDirector::drawScene();
         }
-        
+
         DevTools::get()->setup();
 
         static GLRenderCtx* gdTexture = nullptr;
@@ -153,8 +153,8 @@ class $modify(CCEGLView) {
 };
 
 // For the one eclipse shortcut
-struct ToggleDevToolsEvent : SimpleEvent<ToggleDevToolsEvent> {
-    using SimpleEvent::SimpleEvent;
+struct ToggleDevToolsEvent : Event<ToggleDevToolsEvent, bool()> {
+    using Event::Event;
 };
 
 $execute {
